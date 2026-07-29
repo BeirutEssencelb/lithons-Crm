@@ -17,13 +17,14 @@ import type { Client } from "@/features/clients/types/client.types";
 const ORDERS_PAGE_SIZE = 50;
 
 const ORDER_LIST_COLUMNS =
-  "id, user_id, lead_id, first_name, last_name, email, phone, location, note, order_quantity, won_at, inventory_item_id, inventory:inventory_item_id(name)" as const;
+  "id, user_id, lead_id, first_name, last_name, email, phone, location, note, order_quantity, won_at, archived_at, inventory_item_id, inventory:inventory_item_id(name)" as const;
 
 async function getClientOrders(): Promise<Client[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("clients")
     .select(ORDER_LIST_COLUMNS)
+    .is("archived_at", null)
     .order("won_at", { ascending: false })
     .limit(ORDERS_PAGE_SIZE);
 

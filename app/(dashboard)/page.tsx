@@ -13,7 +13,10 @@ async function getDashboardStats() {
     const [leads, inventory, clients] = await Promise.all([
       supabase.from("leads").select("id", { count: "exact", head: true }),
       supabase.from("inventory").select("id", { count: "exact", head: true }),
-      supabase.from("clients").select("id", { count: "exact", head: true }),
+      supabase
+        .from("clients")
+        .select("id", { count: "exact", head: true })
+        .is("archived_at", null),
     ]);
 
     return {

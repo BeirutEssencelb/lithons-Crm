@@ -7,6 +7,7 @@ import type { Lead } from "@/features/leads/types/lead.types";
 import { LeadPhotosLazy } from "@/features/leads/components/lead-photos-lazy";
 import { LeadPushSctButton } from "@/features/leads/components/lead-push-sct-button";
 import { LeadWonActions } from "@/features/leads/components/lead-won-actions";
+import { DeleteLeadButton } from "@/features/leads/components/delete-lead-button";
 
 interface LeadDetailPageProps {
   params: Promise<{ id: string }>;
@@ -63,6 +64,10 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
             <LeadPushSctButton lead={lead} />
           </div>
           <LeadWonActions lead={lead} />
+          <DeleteLeadButton
+            leadId={lead.id}
+            leadName={`${lead.first_name} ${lead.last_name}`.trim()}
+          />
         </div>
       </div>
 

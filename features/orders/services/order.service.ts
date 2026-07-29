@@ -9,6 +9,7 @@ export const orderService = {
     const { data, error } = await supabase
       .from("clients")
       .select("*, inventory:inventory_item_id(name)")
+      .is("archived_at", null)
       .order("won_at", { ascending: false });
     if (error) throw error;
     return (data as Client[]) ?? [];

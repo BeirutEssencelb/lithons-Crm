@@ -16,6 +16,7 @@ export function useClients() {
         const { data, error: fetchError } = await supabase
           .from("clients")
           .select("*, inventory:inventory_item_id(name)")
+          .is("archived_at", null)
           .order("won_at", { ascending: false });
 
         if (fetchError) throw fetchError;

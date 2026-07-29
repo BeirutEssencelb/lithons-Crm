@@ -11,8 +11,12 @@ export interface Client {
   order_quantity: number;
   note: string;
   won_at: string;
+  archived_at: string | null;
   inventory?: { name: string } | null;
 }
 
-export type CreateClientInput = Omit<Client, "id" | "user_id" | "won_at" | "inventory">;
+export type CreateClientInput = Omit<
+  Client,
+  "id" | "user_id" | "won_at" | "archived_at" | "inventory"
+>;
 export type UpdateClientInput = Partial<CreateClientInput> & { id: string };
