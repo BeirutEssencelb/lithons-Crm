@@ -44,11 +44,17 @@ export function formatLeadForSummit(
 }
 
 export async function pushLeadToSct(leadData: SummitLeadData): Promise<void> {
-  const token = process.env.NEXT_PUBLIC_API_SECRET_TOKEN;
+  const apiSecret = process.env.NEXT_PUBLIC_API_SECRET_TOKEN;
+  const summitAnonKey = process.env.NEXT_PUBLIC_SUMMIT_SUPABASE_ANON_KEY;
 
-  if (!token) {
+  if (!apiSecret) {
     throw new Error(
       "Missing NEXT_PUBLIC_API_SECRET_TOKEN. Add it to your .env.local file."
+    );
+  }
+  if (!summitAnonKey) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUMMIT_SUPABASE_ANON_KEY. Add it to your .env.local file."
     );
   }
 
@@ -56,9 +62,10 @@ export async function pushLeadToSct(leadData: SummitLeadData): Promise<void> {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      apikey: summitAnonKey,
+      "x-api-secret": apiSecret,
     },
-    body: JSON.stringify({ leadData }),
+    body: JSON.stringify(leadData),
   });
 
   if (!response.ok) {
