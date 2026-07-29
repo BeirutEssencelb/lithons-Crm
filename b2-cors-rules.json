@@ -1,0 +1,13 @@
+[
+  {
+    "corsRuleName": "lithosCrmBrowserUpload",
+    "allowedOrigins": [
+      "https://lithons-crm.vercel.app",
+      "http://localhost:3000"
+    ],
+    "allowedHeaders": ["*"],
+    "allowedOperations": ["s3_put", "s3_get", "s3_head"],
+    "exposeHeaders": ["ETag", "x-amz-request-id"],
+    "maxAgeSeconds": 3600
+  }
+]

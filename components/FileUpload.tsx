@@ -50,7 +50,12 @@ export function putFileWithProgress(
       }
     };
 
-    xhr.onerror = () => reject(new Error("Network error during upload"));
+    xhr.onerror = () =>
+      reject(
+        new Error(
+          "Network error during upload — usually B2 CORS. Allow s3_put from your site origin on the bucket (see b2-cors-rules.json)."
+        )
+      );
     xhr.send(file);
   });
 }
