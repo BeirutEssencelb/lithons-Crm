@@ -14,15 +14,21 @@ import type { Client } from "@/features/clients/types/client.types";
  * Live Supabase has no separate `orders` table.
  * Orders are stored on won clients (product + order_quantity).
  */
+const ORDERS_PAGE_SIZE = 50;
+
+const ORDER_LIST_COLUMNS =
+  "id, user_id, lead_id, first_name, last_name, email, phone, location, note, order_quantity, won_at, inventory_item_id, inventory:inventory_item_id(name)" as const;
+
 async function getClientOrders(): Promise<Client[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("clients")
-    .select("*, inventory:inventory_item_id(name)")
-    .order("won_at", { ascending: false });
+    .select(ORDER_LIST_COLUMNS)
+    .order("won_at", { ascending: false })
+    .limit(ORDERS_PAGE_SIZE);
 
   if (error) throw error;
-  return (data as Client[]) ?? [];
+  return (data as unknown as Client[]) ?? [];
 }
 
 export default async function OrdersPage() {
@@ -39,7 +45,7 @@ export default async function OrdersPage() {
 
       {orders.length === 0 ? (
         <p className="py-8 text-center text-slate-400">
-          No orders yet. Mark a lead as Slab sold to create one.
+          No orders yet. Mark a lead as sold to create one.
         </p>
       ) : (
         <>
@@ -52,17 +58,12 @@ export default async function OrdersPage() {
                 <p className="font-medium">
                   {order.first_name} {order.last_name}
                 </p>
-                <p className="mt-0.5 text-sm text-slate-400">
-                  {order.inventory?.name ?? "No product"}
+                <p className="mt-1 text-sm text-slate-400">
+                  {order.inventory?.name ?? "—"} · Qty {order.order_quantity}
                 </p>
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                  <span>
-                    {order.order_quantity} slab
-                    {order.order_quantity !== 1 ? "s" : ""}
-                  </span>
-                  <span>{order.location || "—"}</span>
-                  <span>{formatDate(order.won_at)}</span>
-                </div>
+                <p className="mt-2 text-xs text-slate-500">
+                  {formatDate(order.won_at)}
+                </p>
               </li>
             ))}
           </ul>
@@ -75,7 +76,7 @@ export default async function OrdersPage() {
                   <TableHead>Product</TableHead>
                   <TableHead className="text-right">Qty</TableHead>
                   <TableHead className="hidden lg:table-cell">Location</TableHead>
-                  <TableHead>Sold</TableHead>
+                  <TableHead>Won</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -86,7 +87,7 @@ export default async function OrdersPage() {
                     </TableCell>
                     <TableCell>{order.inventory?.name ?? "—"}</TableCell>
                     <TableCell className="text-right">
-                      {order.order_quantity} slabs
+                      {order.order_quantity}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {order.location || "—"}

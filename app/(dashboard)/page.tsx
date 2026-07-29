@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Users, Package, ShoppingCart, UserCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -9,7 +10,6 @@ async function getDashboardStats() {
 
   try {
     const supabase = await createClient();
-
     const [leads, inventory, clients] = await Promise.all([
       supabase.from("leads").select("id", { count: "exact", head: true }),
       supabase.from("inventory").select("id", { count: "exact", head: true }),
@@ -19,7 +19,6 @@ async function getDashboardStats() {
     return {
       leads: leads.count ?? 0,
       inventory: inventory.count ?? 0,
-      // Orders are client records with product quantities in this schema
       orders: clients.count ?? 0,
       clients: clients.count ?? 0,
     };
@@ -31,62 +30,42 @@ async function getDashboardStats() {
 export default async function DashboardPage() {
   const stats = await getDashboardStats();
 
-  const statCards = [
+  const cards = [
+    { title: "Leads", value: stats.leads, href: "/leads", icon: Users },
+    { title: "Clients", value: stats.clients, href: "/clients", icon: UserCheck },
     {
-      title: "Total Leads",
-      value: stats.leads,
-      icon: Users,
-      description: "Active sales leads",
-    },
-    {
-      title: "Inventory Items",
+      title: "Inventory",
       value: stats.inventory,
+      href: "/inventory",
       icon: Package,
-      description: "Products in stock",
     },
-    {
-      title: "Orders",
-      value: stats.orders,
-      icon: ShoppingCart,
-      description: "Client orders (won leads)",
-    },
-    {
-      title: "Clients",
-      value: stats.clients,
-      icon: UserCheck,
-      description: "Active clients",
-    },
+    { title: "Orders", value: stats.orders, href: "/orders", icon: ShoppingCart },
   ];
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          Dashboard
-        </h1>
-        <p className="mt-1 text-sm text-slate-400 lg:text-base">
-          Overview of leads, inventory, orders, and clients
-        </p>
-      </div>
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {statCards.map((card) => {
+      <h1 className="mb-4 text-xl font-semibold tracking-tight sm:text-2xl">
+        Dashboard
+      </h1>
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+        {cards.map((card) => {
           const Icon = card.icon;
           return (
-            <div
+            <Link
               key={card.title}
-              className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5"
+              href={card.href}
+              className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 transition-colors hover:border-slate-700 hover:bg-slate-900/70"
             >
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-400">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-400">
                   {card.title}
                 </span>
-                <Icon className="h-4 w-4 text-brand-400" />
+                <Icon className="h-3.5 w-3.5 text-brand-400" />
               </div>
-              <div className="text-2xl font-bold tracking-tight">
+              <div className="text-2xl font-semibold tracking-tight">
                 {card.value}
               </div>
-              <p className="mt-1 text-xs text-slate-500">{card.description}</p>
-            </div>
+            </Link>
           );
         })}
       </div>

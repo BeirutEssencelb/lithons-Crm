@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import {
   Table,
@@ -12,8 +10,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { formatDate, formatLeadStatus } from "@/lib/utils";
 import type { Lead } from "@/features/leads/types/lead.types";
-import { LeadPushSctButton } from "@/features/leads/components/lead-push-sct-button";
-import { LeadWonActions } from "@/features/leads/components/lead-won-actions";
 
 interface LeadTableProps {
   leads: Lead[];
@@ -25,6 +21,7 @@ const statusColors: Record<string, string> = {
   lost: "bg-red-500/15 text-red-300 border-red-500/25",
 };
 
+/** Server-rendered list — actions live on the lead detail page to cut hydration cost. */
 export function LeadTable({ leads }: LeadTableProps) {
   if (leads.length === 0) {
     return (
@@ -36,16 +33,12 @@ export function LeadTable({ leads }: LeadTableProps) {
 
   return (
     <>
-      {/* Mobile / tablet cards */}
       <ul className="space-y-3 md:hidden">
         {leads.map((lead) => (
-          <li
-            key={lead.id}
-            className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4"
-          >
+          <li key={lead.id}>
             <Link
               href={`/leads/${lead.id}`}
-              className="block transition-colors active:opacity-80"
+            className="block rounded-xl border border-slate-800/80 bg-slate-900/30 p-3 transition-colors active:bg-slate-800/60"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -69,15 +62,10 @@ export function LeadTable({ leads }: LeadTableProps) {
                 <span>{formatDate(lead.created_at)}</span>
               </div>
             </Link>
-            <div className="mt-3 flex flex-col gap-2 border-t border-slate-800/80 pt-3">
-              <LeadPushSctButton lead={lead} />
-              <LeadWonActions lead={lead} />
-            </div>
           </li>
         ))}
       </ul>
 
-      {/* Desktop table */}
       <div className="hidden md:block">
         <Table>
           <TableHeader>
@@ -89,7 +77,6 @@ export function LeadTable({ leads }: LeadTableProps) {
               <TableHead>Product</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="hidden xl:table-cell">Created</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -119,12 +106,6 @@ export function LeadTable({ leads }: LeadTableProps) {
                 </TableCell>
                 <TableCell className="hidden xl:table-cell">
                   {formatDate(lead.created_at)}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex flex-col items-end gap-2">
-                    <LeadPushSctButton lead={lead} />
-                    <LeadWonActions lead={lead} />
-                  </div>
                 </TableCell>
               </TableRow>
             ))}

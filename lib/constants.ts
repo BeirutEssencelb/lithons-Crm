@@ -16,7 +16,7 @@ export interface NavItem {
   icon: LucideIcon;
 }
 
-/** Primary nav — shown in sidebar and bottom bar. */
+/** Full sidebar nav */
 export const NAV_ITEMS: NavItem[] = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard },
   { title: "Leads", href: "/leads", icon: Users },
@@ -25,7 +25,14 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Orders", href: "/orders", icon: ShoppingCart },
 ];
 
-/** Extra sidebar links (not in bottom nav to avoid crowding). */
+/** Compact mobile bottom bar (no Dashboard — use logo) */
+export const MOBILE_NAV_ITEMS: NavItem[] = [
+  { title: "Leads", href: "/leads", icon: Users },
+  { title: "Clients", href: "/clients", icon: UserCheck },
+  { title: "Stock", href: "/inventory", icon: Package },
+  { title: "Orders", href: "/orders", icon: ShoppingCart },
+];
+
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
   { title: "Settings", href: "/settings", icon: Settings },
 ];

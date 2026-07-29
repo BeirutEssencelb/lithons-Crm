@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatDate, formatLeadStatus } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { Lead } from "@/features/leads/types/lead.types";
-import { LeadPhotosSection } from "@/features/leads/components/lead-photos-section";
+import { LeadPhotosLazy } from "@/features/leads/components/lead-photos-lazy";
 import { LeadPushSctButton } from "@/features/leads/components/lead-push-sct-button";
 import { LeadWonActions } from "@/features/leads/components/lead-won-actions";
 
@@ -62,7 +62,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
           <div className="w-full sm:w-auto [&_button]:w-full sm:[&_button]:w-auto">
             <LeadPushSctButton lead={lead} />
           </div>
-          <LeadWonActions lead={lead} showFabs />
+          <LeadWonActions lead={lead} />
         </div>
       </div>
 
@@ -97,7 +97,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
         </div>
       </section>
 
-      <LeadPhotosSection leadId={lead.id} />
+      <LeadPhotosLazy leadId={lead.id} />
     </div>
   );
 }

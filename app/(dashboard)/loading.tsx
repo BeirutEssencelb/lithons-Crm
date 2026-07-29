@@ -6,8 +6,8 @@ export default function Loading() {
   return (
     <div>
       <div className="mb-6 space-y-2">
-        <div className="h-8 w-32 animate-pulse rounded-lg bg-slate-800/60" />
-        <div className="h-4 w-48 animate-pulse rounded bg-slate-800/40" />
+        <div className="h-8 w-40 animate-pulse rounded-lg bg-slate-800/60" />
+        <div className="h-4 w-56 animate-pulse rounded bg-slate-800/40" />
       </div>
       <div className="space-y-3">
         {[...Array(6)].map((_, i) => (

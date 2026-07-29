@@ -1,10 +1,10 @@
 import { InventoryTable } from "@/features/inventory/components/inventory-table";
 import { StockAlert } from "@/features/inventory/components/stock-alert";
 import { SeedInventoryButton } from "@/features/inventory/components/seed-inventory-button";
-import { getOrSeedInventory } from "@/features/inventory/services/seed-inventory";
+import { getInventory } from "@/features/inventory/services/get-inventory";
 
 export default async function InventoryPage() {
-  const inventory = await getOrSeedInventory();
+  const inventory = await getInventory();
   const flaggedItems = inventory.filter(
     (item) => item.quantity === 0 || item.quantity <= item.low_stock_threshold
   );
@@ -20,7 +20,7 @@ export default async function InventoryPage() {
             {inventory.length} products · {flaggedItems.length} need attention
           </p>
         </div>
-        <SeedInventoryButton />
+        {inventory.length === 0 ? <SeedInventoryButton /> : null}
       </div>
 
       {flaggedItems.length > 0 ? <StockAlert items={flaggedItems} /> : null}
