@@ -14,6 +14,7 @@ import {
   LeadImagePicker,
   type PickedLeadImage,
 } from "@/features/leads/components/lead-image-picker";
+import { ProductCombobox } from "@/features/leads/components/product-combobox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -204,38 +205,25 @@ export function AddLeadDialog({ open, onOpenChange }: AddLeadDialogProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-slate-400">Product</label>
-              <select
-                className="mt-1 h-8 w-full rounded-lg border border-input bg-transparent px-2 text-sm"
-                disabled={saving}
-                value={form.watch("inventory_item_id") ?? ""}
-                onChange={(e) =>
-                  form.setValue(
-                    "inventory_item_id",
-                    e.target.value ? e.target.value : null
-                  )
-                }
-              >
-                <option value="">Select</option>
-                {inventory.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-slate-400">Qty</label>
-              <Input
-                className="mt-1"
-                type="number"
-                min={1}
-                disabled={saving}
-                {...form.register("order_quantity", { valueAsNumber: true })}
-              />
-            </div>
+          <div>
+            <label className="text-xs text-slate-400">Product</label>
+            <ProductCombobox
+              options={inventory}
+              value={form.watch("inventory_item_id")}
+              disabled={saving}
+              onChange={(id) => form.setValue("inventory_item_id", id)}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs text-slate-400">Qty</label>
+            <Input
+              className="mt-1"
+              type="number"
+              min={1}
+              disabled={saving}
+              {...form.register("order_quantity", { valueAsNumber: true })}
+            />
           </div>
 
           <div>
