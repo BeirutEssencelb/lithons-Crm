@@ -1,6 +1,7 @@
 import { InventoryTable } from "@/features/inventory/components/inventory-table";
 import { StockAlert } from "@/features/inventory/components/stock-alert";
 import { SeedInventoryButton } from "@/features/inventory/components/seed-inventory-button";
+import { AddInventoryButton } from "@/features/inventory/components/add-inventory-button";
 import { getInventory } from "@/features/inventory/services/get-inventory";
 
 export default async function InventoryPage() {
@@ -20,7 +21,10 @@ export default async function InventoryPage() {
             {inventory.length} products · {flaggedItems.length} need attention
           </p>
         </div>
-        {inventory.length === 0 ? <SeedInventoryButton /> : null}
+        <div className="flex flex-wrap items-center gap-2">
+          <AddInventoryButton />
+          {inventory.length === 0 ? <SeedInventoryButton /> : null}
+        </div>
       </div>
 
       {flaggedItems.length > 0 ? <StockAlert items={flaggedItems} /> : null}

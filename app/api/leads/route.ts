@@ -35,9 +35,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { created_at, follow_up_at, ...rest } = parsed.data;
+  const row: Record<string, unknown> = { ...rest, user_id: user.id };
+
+  if (created_at) {
+    row.created_at = /^\d{4}-\d{2}-\d{2}$/.test(created_at)
+      ? new Date(`${created_at}T12:00:00`).toISOString()
+      : new Date(created_at).toISOString();
+  }
+
+  if (follow_up_at) {
+    row.follow_up_at = /^\d{4}-\d{2}-\d{2}$/.test(follow_up_at)
+      ? new Date(`${follow_up_at}T12:00:00`).toISOString()
+      : new Date(follow_up_at).toISOString();
+  } else {
+    row.follow_up_at = null;
+  }
+
   const { data, error } = await supabase
     .from("leads")
-    .insert({ ...parsed.data, user_id: user.id })
+    .insert(row)
     .select()
     .single();
 

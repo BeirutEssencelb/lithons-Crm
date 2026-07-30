@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createLeadSchema,
   type CreateLeadFormData,
 } from "@/features/leads/schemas/lead.schema";
-import { createClient } from "@/lib/supabase/client";
 import { uploadLeadImagesToB2 } from "@/features/leads/services/upload-lead-images";
 import {
   LeadImagePicker,
   type PickedLeadImage,
 } from "@/features/leads/components/lead-image-picker";
-import { ProductCombobox } from "@/features/leads/components/product-combobox";
+import {
+  ProductCombobox,
+  type ProductOption,
+} from "@/features/leads/components/product-combobox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,23 +27,24 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface InventoryOption {
-  id: string;
-  name: string;
-}
-
 interface AddLeadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  products: ProductOption[];
 }
 
-export function AddLeadDialog({ open, onOpenChange }: AddLeadDialogProps) {
+export function AddLeadDialog({
+  open,
+  onOpenChange,
+  products,
+}: AddLeadDialogProps) {
   const router = useRouter();
-  const [inventory, setInventory] = useState<InventoryOption[]>([]);
   const [images, setImages] = useState<PickedLeadImage[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const today = new Date().toISOString().slice(0, 10);
 
   const form = useForm<CreateLeadFormData>({
     resolver: zodResolver(createLeadSchema),
@@ -54,20 +57,16 @@ export function AddLeadDialog({ open, onOpenChange }: AddLeadDialogProps) {
       inventory_item_id: null,
       order_quantity: 1,
       note: "",
-      follow_up_at: null,
+      follow_up_at: "",
+      created_at: today,
       status: "active",
     },
   });
 
-  useEffect(() => {
-    if (!open) return;
-    const supabase = createClient();
-    supabase
-      .from("inventory")
-      .select("id, name")
-      .order("name")
-      .then(({ data }) => setInventory((data as InventoryOption[]) ?? []));
-  }, [open]);
+  const inventoryItemId = useWatch({
+    control: form.control,
+    name: "inventory_item_id",
+  });
 
   function clearImages() {
     images.forEach((img) => URL.revokeObjectURL(img.previewUrl));
@@ -118,7 +117,19 @@ export function AddLeadDialog({ open, onOpenChange }: AddLeadDialogProps) {
         }
       }
 
-      form.reset();
+      form.reset({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        location: "",
+        inventory_item_id: null,
+        order_quantity: 1,
+        note: "",
+        follow_up_at: "",
+        created_at: new Date().toISOString().slice(0, 10),
+        status: "active",
+      });
       clearImages();
       onOpenChange(false);
       router.refresh();
@@ -208,10 +219,15 @@ export function AddLeadDialog({ open, onOpenChange }: AddLeadDialogProps) {
           <div>
             <label className="text-xs text-slate-400">Product</label>
             <ProductCombobox
-              options={inventory}
-              value={form.watch("inventory_item_id")}
+              options={products}
+              value={inventoryItemId ?? null}
               disabled={saving}
-              onChange={(id) => form.setValue("inventory_item_id", id)}
+              onChange={(id) =>
+                form.setValue("inventory_item_id", id, {
+                  shouldDirty: true,
+                  shouldTouch: true,
+                })
+              }
             />
           </div>
 
@@ -224,6 +240,27 @@ export function AddLeadDialog({ open, onOpenChange }: AddLeadDialogProps) {
               disabled={saving}
               {...form.register("order_quantity", { valueAsNumber: true })}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-slate-400">Lead date</label>
+              <Input
+                className="mt-1"
+                type="date"
+                disabled={saving}
+                {...form.register("created_at")}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">Follow-up date</label>
+              <Input
+                className="mt-1"
+                type="date"
+                disabled={saving}
+                {...form.register("follow_up_at")}
+              />
+            </div>
           </div>
 
           <div>

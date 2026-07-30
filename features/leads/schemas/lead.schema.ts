@@ -11,7 +11,13 @@ export const createLeadSchema = z.object({
   inventory_item_id: z.string().uuid().nullable().default(null),
   order_quantity: z.number().int().min(1).default(1),
   note: z.string().default(""),
-  follow_up_at: z.string().nullable().default(null),
+  follow_up_at: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : null)),
+  /** YYYY-MM-DD or ISO datetime — maps to leads.created_at */
+  created_at: z.string().min(1).optional(),
   status: z.enum(leadStatusValues).default("active"),
 });
 

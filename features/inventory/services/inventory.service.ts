@@ -30,9 +30,14 @@ export const inventoryService = {
   },
 
   async create(input: CreateInventoryInput): Promise<InventoryItem> {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("You must be signed in");
+
     const { data, error } = await supabase
       .from("inventory")
-      .insert(input)
+      .insert({ ...input, user_id: user.id })
       .select()
       .single();
     if (error) throw error;

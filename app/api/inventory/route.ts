@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { createInventorySchema } from "@/features/inventory/schemas/inventory.schema";
+import {
+  createInventorySchema,
+  updateInventorySchema,
+} from "@/features/inventory/schemas/inventory.schema";
 
 export async function GET() {
   const supabase = await createClient();
@@ -46,4 +50,54 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json(data, { status: 201 });
+}
+
+export async function PATCH(request: Request) {
+  const supabase = await createClient();
+  const body = await request.json();
+
+  const parsed = updateInventorySchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Validation failed", details: parsed.error.issues },
+      { status: 400 }
+    );
+  }
+
+  const { id, ...updates } = parsed.data;
+  const { data, error } = await supabase
+    .from("inventory")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
+
+const deleteSchema = z.object({ id: z.string().uuid() });
+
+export async function DELETE(request: Request) {
+  const supabase = await createClient();
+  const body = await request.json();
+
+  const parsed = deleteSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
+
+  const { error } = await supabase
+    .from("inventory")
+    .delete()
+    .eq("id", parsed.data.id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
 }

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { InventoryItem } from "@/features/inventory/types/inventory.types";
+import { InventoryRowActions } from "@/features/inventory/components/inventory-row-actions";
 
 interface InventoryTableProps {
   items: InventoryItem[];
@@ -27,8 +28,8 @@ export function InventoryTable({ items }: InventoryTableProps) {
       <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 px-4 py-10 text-center">
         <p className="text-slate-300">No inventory items yet.</p>
         <p className="mt-1 text-sm text-slate-500">
-          Use “Add 31 slab products” to load the default LITHOS catalog
-          (50 slabs each).
+          Add a product, or use “Add 31 slab products” to load the default
+          catalog.
         </p>
       </div>
     );
@@ -52,6 +53,9 @@ export function InventoryTable({ items }: InventoryTableProps) {
                 <span>{item.quantity} slabs</span>
                 <span>Low at {item.low_stock_threshold}</span>
               </div>
+              <div className="mt-3 flex justify-end">
+                <InventoryRowActions item={item} />
+              </div>
             </li>
           );
         })}
@@ -65,6 +69,7 @@ export function InventoryTable({ items }: InventoryTableProps) {
               <TableHead className="text-right">Quantity</TableHead>
               <TableHead className="text-right">Low stock at</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -84,6 +89,11 @@ export function InventoryTable({ items }: InventoryTableProps) {
                   </TableCell>
                   <TableCell>
                     <Badge variant={status.variant}>{status.label}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end">
+                      <InventoryRowActions item={item} />
+                    </div>
                   </TableCell>
                 </TableRow>
               );

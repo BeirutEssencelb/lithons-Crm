@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { ChangePasswordForm } from "@/features/settings/components/change-password-form";
+import { PwaNotificationsCard } from "@/features/settings/components/pwa-notifications-card";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -8,8 +9,8 @@ export default async function SettingsPage() {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="mx-auto w-full max-w-lg lg:mx-0 lg:max-w-none">
-      <div className="mb-5 sm:mb-6 md:mb-8">
+    <div className="mx-auto w-full max-w-lg space-y-6 lg:mx-0 lg:max-w-xl">
+      <div className="mb-1 sm:mb-2">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           Settings
         </h1>
@@ -24,6 +25,8 @@ export default async function SettingsPage() {
           )}
         </p>
       </div>
+
+      <PwaNotificationsCard />
 
       <section aria-labelledby="password-heading">
         <h2 id="password-heading" className="sr-only">

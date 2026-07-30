@@ -1,6 +1,15 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  useDeferredValue,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  startTransition,
+} from "react";
 import { Check, ChevronsUpDown, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +26,7 @@ interface ProductComboboxProps {
   placeholder?: string;
 }
 
-export function ProductCombobox({
+function ProductComboboxInner({
   options,
   value,
   onChange,
@@ -26,19 +35,26 @@ export function ProductCombobox({
 }: ProductComboboxProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
 
-  const selected = useMemo(
-    () => options.find((o) => o.id === value) ?? null,
-    [options, value]
+  const selectedName = useMemo(() => {
+    if (!value) return null;
+    return options.find((o) => o.id === value)?.name ?? null;
+  }, [options, value]);
+
+  const searchable = useMemo(
+    () => options.map((o) => ({ ...o, key: o.name.toLowerCase() })),
+    [options]
   );
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return options;
-    return options.filter((o) => o.name.toLowerCase().includes(q));
-  }, [options, query]);
+    const q = deferredQuery.trim().toLowerCase();
+    if (!q) return searchable;
+    return searchable.filter((o) => o.key.includes(q));
+  }, [searchable, deferredQuery]);
 
   useEffect(() => {
     if (!open) return;
@@ -50,6 +66,10 @@ export function ProductCombobox({
     }
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [open]);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
   }, [open]);
 
   function pick(id: string | null) {
@@ -67,8 +87,10 @@ export function ProductCombobox({
         aria-controls={listId}
         onClick={() => {
           if (disabled) return;
-          setOpen((prev) => !prev);
-          setQuery("");
+          startTransition(() => {
+            setOpen((prev) => !prev);
+            setQuery("");
+          });
         }}
         className={cn(
           "flex h-9 w-full items-center justify-between gap-2 rounded-lg border border-slate-700 bg-slate-950 px-2.5 text-left text-sm text-slate-100 outline-none transition-colors",
@@ -79,13 +101,13 @@ export function ProductCombobox({
         <span
           className={cn(
             "truncate",
-            selected ? "text-slate-100" : "text-slate-500"
+            selectedName ? "text-slate-100" : "text-slate-500"
           )}
         >
-          {selected?.name ?? "Select product"}
+          {selectedName ?? "Select product"}
         </span>
         <span className="flex shrink-0 items-center gap-1">
-          {selected ? (
+          {selectedName ? (
             <span
               role="button"
               tabIndex={-1}
@@ -111,7 +133,7 @@ export function ProductCombobox({
           <div className="flex items-center gap-2 border-b border-slate-800 px-2.5 py-2">
             <Search className="h-3.5 w-3.5 shrink-0 text-slate-500" />
             <input
-              autoFocus
+              ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={placeholder}
@@ -120,7 +142,7 @@ export function ProductCombobox({
             />
           </div>
 
-          <ul className="max-h-48 overflow-y-auto py-1">
+          <ul className="max-h-48 overflow-y-auto overscroll-contain py-1 contain-content">
             {filtered.length === 0 ? (
               <li className="px-3 py-2 text-sm text-slate-500">
                 No products match
@@ -134,7 +156,7 @@ export function ProductCombobox({
                       type="button"
                       onClick={() => pick(item.id)}
                       className={cn(
-                        "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors",
+                        "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm",
                         isSelected
                           ? "bg-brand-500/15 text-brand-200"
                           : "text-slate-200 hover:bg-slate-800"
@@ -155,3 +177,5 @@ export function ProductCombobox({
     </div>
   );
 }
+
+export const ProductCombobox = memo(ProductComboboxInner);

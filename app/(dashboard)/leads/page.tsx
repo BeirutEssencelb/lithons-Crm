@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { LeadTable } from "@/features/leads/components/lead-table";
 import { AddLeadButton } from "@/features/leads/components/add-lead-button";
 import type { Lead } from "@/features/leads/types/lead.types";
+import type { ProductOption } from "@/features/leads/components/product-combobox";
 
 const LEADS_PAGE_SIZE = 50;
 
@@ -20,8 +21,22 @@ async function getLeads(): Promise<Lead[]> {
   return (data as unknown as Lead[]) ?? [];
 }
 
+async function getProductOptions(): Promise<ProductOption[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("inventory")
+    .select("id, name")
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return (data as ProductOption[]) ?? [];
+}
+
 export default async function LeadsPage() {
-  const leads = await getLeads();
+  const [leads, products] = await Promise.all([
+    getLeads(),
+    getProductOptions(),
+  ]);
 
   return (
     <div>
@@ -37,7 +52,7 @@ export default async function LeadsPage() {
               : ""}
           </p>
         </div>
-        <AddLeadButton />
+        <AddLeadButton products={products} />
       </div>
       <LeadTable leads={leads} />
     </div>
