@@ -15,7 +15,7 @@ export type PushSubscriptionRecord = {
 function configureVapid() {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT || "mailto:admin@lithos-crm.local";
+  const subject = process.env.VAPID_SUBJECT || "mailto:nico@lithosnaturalstone.com";
 
   if (!publicKey || !privateKey) {
     throw new Error(
